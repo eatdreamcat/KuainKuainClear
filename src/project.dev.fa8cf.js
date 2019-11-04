@@ -33,6 +33,7 @@ window.__require = function e(t, n, r) {
     });
     var HashMap_1 = require("../exts/HashMap");
     var EventManager_1 = require("./EventManager");
+    var EventName_1 = require("./EventName");
     var AudioController = function() {
       function AudioController() {
         this.curBgm = -1;
@@ -49,7 +50,7 @@ window.__require = function e(t, n, r) {
       AudioController.prototype.init = function(callback) {
         console.warn(" start load AudioClip ");
         var self = this;
-        cc.loader.loadResDir("AudioClip", cc.AudioClip, function(err, clips, urls) {
+        cc.loader.loadResDir("sounds", cc.AudioClip, function(err, clips, urls) {
           if (err) console.error(err); else {
             for (var _i = 0, clips_1 = clips; _i < clips_1.length; _i++) {
               var clip = clips_1[_i];
@@ -61,9 +62,35 @@ window.__require = function e(t, n, r) {
         });
       };
       AudioController.prototype.initEvent = function() {
+        var _this = this;
         EventManager_1.gEventMgr.targetOff(this);
         this.curBgm = this.play("normal_bgm", true, .7, true);
         this.curBgmName = "normal_bgm";
+        EventManager_1.gEventMgr.on(EventName_1.GlobalEvent.PLAY_KILL_EFFECT, function() {
+          _this.play("fruit_break");
+        }, this);
+        EventManager_1.gEventMgr.on(EventName_1.GlobalEvent.PLAY_30_BGM, function() {
+          -1 != _this.curBgm && _this.stop(_this.curBgmName, _this.curBgm);
+          _this.curBgm = _this.play("bgm_30secs", true, .7, true);
+          _this.curBgmName = "bgm_30secs";
+        }, this);
+        EventManager_1.gEventMgr.on(EventName_1.GlobalEvent.GAME_RESTART, function() {
+          -1 != _this.curBgm && _this.stop(_this.curBgmName, _this.curBgm);
+          _this.curBgm = _this.play("normal_bgm", true, .7, true);
+          _this.curBgmName = "normal_bgm";
+        }, this);
+        EventManager_1.gEventMgr.on(EventName_1.GlobalEvent.PLAY_LETSGO, function() {
+          _this.play("letsgo");
+        }, this);
+        EventManager_1.gEventMgr.on(EventName_1.GlobalEvent.PLAY_BIU, function() {
+          _this.play("biu");
+        }, this);
+        EventManager_1.gEventMgr.on(EventName_1.GlobalEvent.PLAY_TOUCH, function() {
+          _this.play("touch");
+        }, this);
+        EventManager_1.gEventMgr.on(EventName_1.GlobalEvent.PLAY_PLACE, function() {
+          _this.play("lay");
+        }, this);
       };
       AudioController.prototype.stop = function(clipName, audioID) {
         if (AudioController.canPlay) cc.audioEngine.stop(audioID); else for (var _i = 0, _a = AudioController.PlayedList; _i < _a.length; _i++) {
@@ -84,8 +111,10 @@ window.__require = function e(t, n, r) {
             var item;
             while ((item = AudioController.PlayedList.pop()) && self_1.clips.get(item.clipName) && !item.skip) {
               var audioID = cc.audioEngine.play(self_1.clips.get(item.clipName), item.loop, item.volume);
-              item.isBgm && (self_1.curBgm = audioID);
-              cc.audioEngine.setCurrentTime(audioID, (Date.now() - item.supTime) / 1e3);
+              if (item.isBgm) {
+                self_1.curBgm = audioID;
+                cc.audioEngine.setCurrentTime(audioID, (Date.now() - item.supTime) / 1e3 % cc.audioEngine.getDuration(audioID));
+              } else cc.audioEngine.setCurrentTime(audioID, (Date.now() - item.supTime) / 1e3);
             }
           };
           cc.game.canvas.addEventListener("touchstart", playFunc_1);
@@ -111,7 +140,8 @@ window.__require = function e(t, n, r) {
     cc._RF.pop();
   }, {
     "../exts/HashMap": "HashMap",
-    "./EventManager": "EventManager"
+    "./EventManager": "EventManager",
+    "./EventName": "EventName"
   } ],
   Config: [ function(require, module, exports) {
     "use strict";
@@ -139,6 +169,7 @@ window.__require = function e(t, n, r) {
     var GameMgr_1 = require("./GameMgr");
     var Config_1 = require("../Config/Config");
     var TableMgr_1 = require("../TableMgr");
+    var GameFactory_1 = require("../Controller/GameFactory");
     var _a = cc._decorator, ccclass = _a.ccclass, property = _a.property;
     var CubeBg = function(_super) {
       __extends(CubeBg, _super);
@@ -176,6 +207,7 @@ window.__require = function e(t, n, r) {
         this.initEvent();
       };
       CubeBg.prototype.ready = function() {
+        EventManager_1.gEventMgr.emit(EventName_1.GlobalEvent.PLAY_BIU);
         if (GameMgr_1.Game.getCubeIndex()[this.index] > 0) {
           this.available = true;
           this.setAvailable(false, true);
@@ -197,8 +229,12 @@ window.__require = function e(t, n, r) {
         EventManager_1.gEventMgr.on(EventName_1.GlobalEvent.EAT_ROW, this.eatRow, this);
         EventManager_1.gEventMgr.on(EventName_1.GlobalEvent.KILL_DIRECTLY, this.killDirectly, this);
         EventManager_1.gEventMgr.on(EventName_1.GlobalEvent.GAME_OVER, this.onGameOver, this);
+        EventManager_1.gEventMgr.on(EventName_1.GlobalEvent.CLEAR_CUBE_ROOT, this.clear, this);
         this.cube.getComponent(cc.Animation).on(cc.Animation.EventType.FINISHED, this.onKillFinished, this);
         this.SpecialKill.on(cc.Animation.EventType.FINISHED, this.onSpecialAniDone, this);
+      };
+      CubeBg.prototype.clear = function() {
+        GameFactory_1.gFactory.putCubeBg(this.node);
       };
       CubeBg.prototype.onGameOver = function(type) {
         var _this = this;
@@ -382,6 +418,7 @@ window.__require = function e(t, n, r) {
           console.warn("place:", GameMgr_1.Game.curPlaceCount, GameMgr_1.Game.dragCount);
           GameMgr_1.Game.curPlaceCount = 0;
           GameMgr_1.Game.dragCount = 0;
+          EventManager_1.gEventMgr.emit(EventName_1.GlobalEvent.PLAY_PLACE);
           EventManager_1.gEventMgr.emit(EventName_1.GlobalEvent.CUBE_BOX_SET_STATE_DONE);
         }
       };
@@ -442,6 +479,7 @@ window.__require = function e(t, n, r) {
     "../Config/Config": "Config",
     "../Controller/EventManager": "EventManager",
     "../Controller/EventName": "EventName",
+    "../Controller/GameFactory": "GameFactory",
     "../TableMgr": "TableMgr",
     "./GameMgr": "GameMgr"
   } ],
@@ -554,6 +592,14 @@ window.__require = function e(t, n, r) {
         EventManager_1.gEventMgr.targetOff(this);
         EventManager_1.gEventMgr.on(EventName_1.GlobalEvent.DRAG_ADJUST_DONE, this.restorePos, this);
         EventManager_1.gEventMgr.on(EventName_1.GlobalEvent.GAME_OVER, this.gameOver, this);
+        EventManager_1.gEventMgr.on(EventName_1.GlobalEvent.CLEAR_CUBE_ROOT, this.clear, this);
+      };
+      CubeRoot.prototype.clear = function() {
+        if (!GameMgr_1.Game.isStart) {
+          this.node.opacity = 0;
+          while (this.PlaceNode.children.length > 0) GameFactory_1.gFactory.putCube(this.PlaceNode.children[0]);
+          GameFactory_1.gFactory.putCubeRoot(this.node);
+        }
       };
       CubeRoot.prototype.gameOver = function() {
         GameMgr_1.Game.canPlace = false;
@@ -582,7 +628,6 @@ window.__require = function e(t, n, r) {
           child.y += this.PlaceNode.height / 2 - child.height / 2;
         }
         this.node.y = 0;
-        EventManager_1.gEventMgr.emit(EventName_1.GlobalEvent.Cube_ADJUST_DONE);
         this.boxSize = cc.size(this.node.width, this.node.height);
         this.cellSize = cc.size(this.PlaceNode.children[0].width, this.PlaceNode.children[0].height);
         this.node.active = true;
@@ -591,9 +636,11 @@ window.__require = function e(t, n, r) {
         this.DragNode.on(cc.Node.EventType.TOUCH_START, this.onTouchStart, this);
         this.DragNode.on(cc.Node.EventType.TOUCH_END, this.onTouchEnd, this);
         this.DragNode.on(cc.Node.EventType.TOUCH_CANCEL, this.onTouchEnd, this);
+        EventManager_1.gEventMgr.emit(EventName_1.GlobalEvent.Cube_ADJUST_DONE);
       };
       CubeRoot.prototype.onTouchStart = function(eventTouch) {
         if (this.isReady || !GameMgr_1.Game.canDrag || !GameMgr_1.Game.isStart) return;
+        EventManager_1.gEventMgr.emit(EventName_1.GlobalEvent.PLAY_TOUCH);
         GameMgr_1.Game.resetPreScore();
         var localTouch = this.DragNode.convertToNodeSpaceAR(eventTouch.getLocation());
         var touchPercent = cc.v2(localTouch.x / this.DragNode.width * 2, localTouch.y / this.DragNode.height * 2);
@@ -790,18 +837,26 @@ window.__require = function e(t, n, r) {
       GlobalEvent[GlobalEvent["CUBE_BOX_PLACE_DONE"] = 5] = "CUBE_BOX_PLACE_DONE";
       GlobalEvent[GlobalEvent["CUBE_BOX_SET_STATE_DONE"] = 6] = "CUBE_BOX_SET_STATE_DONE";
       GlobalEvent[GlobalEvent["GAME_START"] = 7] = "GAME_START";
-      GlobalEvent[GlobalEvent["EAT_COL"] = 8] = "EAT_COL";
-      GlobalEvent[GlobalEvent["EAT_ROW"] = 9] = "EAT_ROW";
-      GlobalEvent[GlobalEvent["KILL_DIRECTLY"] = 10] = "KILL_DIRECTLY";
-      GlobalEvent[GlobalEvent["UPDATE_SCORE"] = 11] = "UPDATE_SCORE";
-      GlobalEvent[GlobalEvent["UPDATE_COMBO"] = 12] = "UPDATE_COMBO";
-      GlobalEvent[GlobalEvent["GAME_OVER"] = 13] = "GAME_OVER";
-      GlobalEvent[GlobalEvent["ON_KILL"] = 14] = "ON_KILL";
-      GlobalEvent[GlobalEvent["ROW_EFFECT"] = 15] = "ROW_EFFECT";
-      GlobalEvent[GlobalEvent["COL_EFFECT"] = 16] = "COL_EFFECT";
-      GlobalEvent[GlobalEvent["SHOW_TEXT"] = 17] = "SHOW_TEXT";
-      GlobalEvent[GlobalEvent["UPDATE_PRE_SCORE"] = 18] = "UPDATE_PRE_SCORE";
-      GlobalEvent[GlobalEvent["SHOW_OVER_LAYER"] = 19] = "SHOW_OVER_LAYER";
+      GlobalEvent[GlobalEvent["GAME_RESTART"] = 8] = "GAME_RESTART";
+      GlobalEvent[GlobalEvent["EAT_COL"] = 9] = "EAT_COL";
+      GlobalEvent[GlobalEvent["EAT_ROW"] = 10] = "EAT_ROW";
+      GlobalEvent[GlobalEvent["KILL_DIRECTLY"] = 11] = "KILL_DIRECTLY";
+      GlobalEvent[GlobalEvent["UPDATE_SCORE"] = 12] = "UPDATE_SCORE";
+      GlobalEvent[GlobalEvent["UPDATE_COMBO"] = 13] = "UPDATE_COMBO";
+      GlobalEvent[GlobalEvent["GAME_OVER"] = 14] = "GAME_OVER";
+      GlobalEvent[GlobalEvent["ON_KILL"] = 15] = "ON_KILL";
+      GlobalEvent[GlobalEvent["ROW_EFFECT"] = 16] = "ROW_EFFECT";
+      GlobalEvent[GlobalEvent["COL_EFFECT"] = 17] = "COL_EFFECT";
+      GlobalEvent[GlobalEvent["SHOW_TEXT"] = 18] = "SHOW_TEXT";
+      GlobalEvent[GlobalEvent["UPDATE_PRE_SCORE"] = 19] = "UPDATE_PRE_SCORE";
+      GlobalEvent[GlobalEvent["SHOW_OVER_LAYER"] = 20] = "SHOW_OVER_LAYER";
+      GlobalEvent[GlobalEvent["CLEAR_CUBE_ROOT"] = 21] = "CLEAR_CUBE_ROOT";
+      GlobalEvent[GlobalEvent["PLAY_KILL_EFFECT"] = 22] = "PLAY_KILL_EFFECT";
+      GlobalEvent[GlobalEvent["PLAY_30_BGM"] = 23] = "PLAY_30_BGM";
+      GlobalEvent[GlobalEvent["PLAY_LETSGO"] = 24] = "PLAY_LETSGO";
+      GlobalEvent[GlobalEvent["PLAY_BIU"] = 25] = "PLAY_BIU";
+      GlobalEvent[GlobalEvent["PLAY_TOUCH"] = 26] = "PLAY_TOUCH";
+      GlobalEvent[GlobalEvent["PLAY_PLACE"] = 27] = "PLAY_PLACE";
     })(GlobalEvent = exports.GlobalEvent || (exports.GlobalEvent = {}));
     cc._RF.pop();
   }, {} ],
@@ -1052,6 +1107,7 @@ window.__require = function e(t, n, r) {
         this.time = Config_1.Config.GameTime;
         this.cubeCount = 64;
         this.callShapeCount = 0;
+        this.availableCount = 0;
         this.addPreScore(-this.preScore);
         this.initData();
         for (var _i = 0, _a = this.testCubeIndex; _i < _a.length; _i++) {
@@ -1059,19 +1115,26 @@ window.__require = function e(t, n, r) {
           testIndex > 0 && this.initAvailableCountInit--;
         }
         console.warn("initAvailableCountInit:", this.initAvailableCountInit);
-        for (var i = 0; i < 64; i++) this.testCubeIndex[i] > 0 ? this.cubeIndex.push(100) : this.cubeIndex.push(-1e4);
+        for (var i = 0; i < 64; i++) this.testCubeIndex[i] > 0 ? this.cubeIndex[i] = 100 : this.cubeIndex[i] = -1e4;
+        this.preCubeIndex = this.cubeIndex.concat();
         var shapeWeights = TableMgr_1.TableMgr.inst.getAll_ShapeWeight_Data();
         for (var id in shapeWeights) {
           var weightData = shapeWeights[id];
           this.shapeWeight.add(parseInt(id), weightData.Weight);
         }
         this.shapeWeight.sort(function(a, b) {
-          return a.value - b.value;
+          return b.value - a.value;
         });
+        this.shapeTotalWeight = 0;
         this.shapeWeight.forEach(function(key, val) {
           _this.shapeTotalWeight += val;
           _this.shapeWeight.add(key, _this.shapeTotalWeight);
         });
+      };
+      GameMgr.prototype.restart = function() {
+        CMath.randomSeed = Date.now();
+        this.start();
+        EventManager_1.gEventMgr.emit(EventName_1.GlobalEvent.GAME_RESTART);
       };
       GameMgr.prototype.getResultData = function() {
         return this.data;
@@ -1139,13 +1202,17 @@ window.__require = function e(t, n, r) {
           console.log(" shapeWeight: ", weight);
           for (var _i = 0, _a = this.shapeWeight.values; _i < _a.length; _i++) {
             var val = _a[_i];
-            if (val.value >= weight) {
+            if (weight <= val.value) {
               var shapeWeightData = TableMgr_1.TableMgr.inst.getShapeWeight(val.key);
+              if (this.callShapeCount < 3) for (var j = 0; j < shapeWeightData.ShapeList.length; j++) if ([ 1e4, 10001, 10002, 10032, 10033 ].indexOf(shapeWeightData.ShapeList[j]) >= 0) {
+                shapeWeightData.ShapeList.splice(j, 1);
+                j--;
+              }
+              if (shapeWeightData.ShapeList.length <= 0) continue;
               var index = CMath.getRandom(0, 1) * (shapeWeightData.ShapeList.length - 1);
               console.warn(shapeWeightData, index);
               shapeData.shapeID = shapeWeightData.ShapeList[Math.round(index)];
               var shapeJson = TableMgr_1.TableMgr.inst.getShape(shapeData.shapeID);
-              if (this.callShapeCount < 3 && (shapeJson.Type == table_1.Shape_Type.TeShuDaoJu || [ 1e4, 10001, 10002 ].indexOf(shapeJson.ID) >= 0)) continue;
               shapeData.shape = shapeJson.Shape;
               if ((10032 == shapeJson.ID || 10033 == shapeJson.ID) && shapes.indexOf(shapeData) >= 0) continue;
               !this.data.Wild_A && (this.data.Wild_A = 10032 == shapeJson.ID);
@@ -1244,6 +1311,7 @@ window.__require = function e(t, n, r) {
       };
       GameMgr.prototype.update = function(dt) {
         if (!this.isStart) return;
+        this.time > 30 && this.time - dt <= 30 && EventManager_1.gEventMgr.emit(EventName_1.GlobalEvent.PLAY_30_BGM);
         this.time -= dt;
         if (this.time <= 0) {
           this.time = 0;
@@ -1320,7 +1388,6 @@ window.__require = function e(t, n, r) {
         return _this;
       }
       GameScene.prototype.onLoad = function() {
-        var _this = this;
         this.Score.string = "0";
         this.FloatScore.string = "";
         this.Tip.node.active = false;
@@ -1328,13 +1395,7 @@ window.__require = function e(t, n, r) {
         this.initEvent();
         GameMgr_1.Game.bindGamePanel(this.GamePanel);
         this.GamePanel.removeAllChildren();
-        var _loop_1 = function(i) {
-          this_1.GamePanel.runAction(cc.sequence(cc.delayTime(i / 60), cc.callFunc(function() {
-            _this.GamePanel.addChild(GameFactory_1.gFactory.getCubeBg(i));
-          }, this_1)));
-        };
-        var this_1 = this;
-        for (var i = 0; i <= 63; i++) _loop_1(i);
+        this.initGamePanel();
         this.DragPanel.removeAllChildren();
         this.Player.play("player_idle");
         this.Player.on(cc.Animation.EventType.FINISHED, this.onAnimationFinish, this);
@@ -1351,6 +1412,18 @@ window.__require = function e(t, n, r) {
           this.colAnimation.push(animation);
         }
       };
+      GameScene.prototype.initGamePanel = function() {
+        var _this = this;
+        this.Score.string = "0";
+        this.TimeLabel.string = "3:00";
+        var _loop_1 = function(i) {
+          this_1.GamePanel.runAction(cc.sequence(cc.delayTime(i / 60), cc.callFunc(function() {
+            _this.GamePanel.addChild(GameFactory_1.gFactory.getCubeBg(i));
+          }, this_1)));
+        };
+        var this_1 = this;
+        for (var i = 0; i <= 63; i++) _loop_1(i);
+      };
       GameScene.prototype.initEvent = function() {
         EventManager_1.gEventMgr.targetOff(this);
         EventManager_1.gEventMgr.on(EventName_1.GlobalEvent.Cube_ADJUST_DONE, this.adjustDragPanel, this);
@@ -1363,6 +1436,7 @@ window.__require = function e(t, n, r) {
         EventManager_1.gEventMgr.on(EventName_1.GlobalEvent.SHOW_TEXT, this.showText, this);
         EventManager_1.gEventMgr.on(EventName_1.GlobalEvent.GAME_START, this.gameStart, this);
         EventManager_1.gEventMgr.on(EventName_1.GlobalEvent.SHOW_OVER_LAYER, this.gameOver, this);
+        EventManager_1.gEventMgr.on(EventName_1.GlobalEvent.GAME_RESTART, this.initGamePanel, this);
         this.ShowText.on(cc.Animation.EventType.FINISHED, this.onShowTextFinish, this);
       };
       GameScene.prototype.onShowTextFinish = function(event, aniState) {
@@ -1379,7 +1453,10 @@ window.__require = function e(t, n, r) {
             _this.Tip.node.runAction(cc.repeatForever(cc.sequence(cc.fadeTo(.1, 0), cc.fadeTo(.2, 255))));
             true;
             _this.node.once(cc.Node.EventType.TOUCH_END, function() {
-              !GameMgr_1.Game.isStart && _this.node.addChild(cc.instantiate(prefab));
+              if (!GameMgr_1.Game.isStart) {
+                _this.node.addChild(cc.instantiate(prefab));
+                _this.Tip.node.active = false;
+              }
             }, _this);
           }
         });
@@ -1389,12 +1466,14 @@ window.__require = function e(t, n, r) {
         this.ShowText.play(name);
       };
       GameScene.prototype.rowEffect = function(rowIndex) {
+        rowIndex.length > 0 && EventManager_1.gEventMgr.emit(EventName_1.GlobalEvent.PLAY_KILL_EFFECT);
         for (var _i = 0, rowIndex_1 = rowIndex; _i < rowIndex_1.length; _i++) {
           var index = rowIndex_1[_i];
           this.rowAnimation[index] && this.rowAnimation[index].play("kill_effect");
         }
       };
       GameScene.prototype.colEffect = function(colIndex) {
+        colIndex.length > 0 && EventManager_1.gEventMgr.emit(EventName_1.GlobalEvent.PLAY_KILL_EFFECT);
         for (var _i = 0, colIndex_1 = colIndex; _i < colIndex_1.length; _i++) {
           var index = colIndex_1[_i];
           this.colAnimation[index] && this.colAnimation[index].play("kill_effect");
@@ -1531,6 +1610,7 @@ window.__require = function e(t, n, r) {
         }
       };
       GameScene.prototype.genNewDragShape = function(shapeList) {
+        shapeList.length < 3 && console.error(" \u65b9\u5757\u751f\u6210\u4e2a\u6570\u4e0d\u8db3!!!!!!!!!!!!!!!!!!!");
         for (var _i = 0, shapeList_1 = shapeList; _i < shapeList_1.length; _i++) {
           var shape = shapeList_1[_i];
           this.DragPanel.addChild(GameFactory_1.gFactory.getCubeRoot(shape));
@@ -1559,6 +1639,7 @@ window.__require = function e(t, n, r) {
       };
       GameScene.prototype.gameStart = function() {
         this.ShowText.play("letsgo");
+        EventManager_1.gEventMgr.emit(EventName_1.GlobalEvent.PLAY_LETSGO);
         this.onCubePlaceDone();
       };
       GameScene.prototype.startUpdateScore = function() {
@@ -1728,6 +1809,8 @@ window.__require = function e(t, n, r) {
     });
     var GameMgr_1 = require("./GameMgr");
     var TableMgr_1 = require("../TableMgr");
+    var EventManager_1 = require("../Controller/EventManager");
+    var EventName_1 = require("../Controller/EventName");
     var celerx = require("../exts/celerx");
     var _a = cc._decorator, ccclass = _a.ccclass, property = _a.property;
     var Step;
@@ -1795,8 +1878,11 @@ window.__require = function e(t, n, r) {
         this.scoreAdd = Math.max(10, Math.floor(this.resultData.totalScore / 100));
         this.Submit.node.scale = 0;
         this.Submit.node.on(cc.Node.EventType.TOUCH_END, function() {
-          celerx.submitScore(_this.resultData.totalScore);
+          true;
+          GameMgr_1.Game.restart();
+          _this.node.removeFromParent();
         }, this);
+        EventManager_1.gEventMgr.emit(EventName_1.GlobalEvent.CLEAR_CUBE_ROOT);
       };
       OverLayer.prototype.start = function() {};
       OverLayer.prototype.update = function(dt) {
@@ -1915,6 +2001,8 @@ window.__require = function e(t, n, r) {
     exports.default = OverLayer;
     cc._RF.pop();
   }, {
+    "../Controller/EventManager": "EventManager",
+    "../Controller/EventName": "EventName",
     "../TableMgr": "TableMgr",
     "../exts/celerx": "celerx",
     "./GameMgr": "GameMgr"
