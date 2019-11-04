@@ -1192,6 +1192,7 @@ window.__require = function e(t, n, r) {
       };
       GameMgr.prototype.getShapes = function() {
         var shapes = [];
+        var specialTool = {};
         for (var i = 0; i < 3; i++) {
           var shapeData = {
             shape: [],
@@ -1213,8 +1214,9 @@ window.__require = function e(t, n, r) {
               console.warn(shapeWeightData, index);
               shapeData.shapeID = shapeWeightData.ShapeList[Math.round(index)];
               var shapeJson = TableMgr_1.TableMgr.inst.getShape(shapeData.shapeID);
+              if (shapeJson.Type != table_1.Shape_Type.PuTongFangKuai && specialTool[shapeJson.ID]) continue;
+              shapeJson.Type != table_1.Shape_Type.PuTongFangKuai && (specialTool[shapeJson.ID] = true);
               shapeData.shape = shapeJson.Shape;
-              if ((10032 == shapeJson.ID || 10033 == shapeJson.ID) && shapes.indexOf(shapeData) >= 0) continue;
               !this.data.Wild_A && (this.data.Wild_A = 10032 == shapeJson.ID);
               !this.data.Wild_B && (this.data.Wild_B = 10033 == shapeJson.ID);
               shapes.push(shapeData);
