@@ -1283,19 +1283,19 @@ window._CCSettings = {
                 "Textures/result/btn_result_con.png",
                 "cc.Texture2D"
             ],
-            "8d5cLJlr9DA6+pRnmjms9q": [
+            "173AdpmZ5MLbD4PtCTNfGo": [
                 "json/Fruits.json",
                 "cc.JsonAsset"
             ],
-            "9dZRBUiOZGhZYBVzcl4x6w": [
+            "12j1DfwLZADbyHLbE9pu5k": [
                 "json/Shape.json",
                 "cc.JsonAsset"
             ],
-            "8bhlo+059NUpDluPm/5ggr": [
+            "d5gaVVIRdD+5jUmLjRWh57": [
                 "json/ShapeWeight.json",
                 "cc.JsonAsset"
             ],
-            "1b2Fbzy6JKJYoQq3Jsb8Jq": [
+            "73IU4fogtHU4kAWkh0dWNS": [
                 "json/file_list.json",
                 "cc.JsonAsset"
             ],
@@ -1775,10 +1775,12 @@ window._CCSettings = {
             "2d32a",
             "0f4877c95",
             "84f71",
+            "12j1DfwLZADbyHLbE9pu5k",
+            "a103a",
             "12kjeE2zBCKovv9M2QpVdG",
             "8be37",
-            "1b2Fbzy6JKJYoQq3Jsb8Jq",
-            "40cbf",
+            "173AdpmZ5MLbD4PtCTNfGo",
+            "25d81",
             "23h/nnqGtDdYq6obdrZpir",
             "efa77",
             "2cP3KalxdIFr+mGG1ODq+Q",
@@ -1801,20 +1803,18 @@ window._CCSettings = {
             "f62e5",
             "62b57ZTd9F7YIPtVYbdw2v",
             "48793",
+            "73IU4fogtHU4kAWkh0dWNS",
+            "40cbf",
             "78hoPwLNVM35kWpkuhR3FQ",
             "b6424",
             "82v45SfLpD557VCuBtlCqA",
             "c1d1a",
             "855DfZbSlDa5qFjo1h6ekJ",
             "fd1a0",
-            "8bhlo+059NUpDluPm/5ggr",
-            "cde50",
             "8cA0fUW0JIfZvRJB9zio3O",
             "b7bb4",
             "8cr93DygRI+I8IMXb7uS62",
             "e4db0",
-            "8d5cLJlr9DA6+pRnmjms9q",
-            "e5dbc",
             "93IMR6dLVAWouehXqqE1wS",
             "3d215",
             "94W9X9b49BZZZZ2qiUpV2D",
@@ -1823,8 +1823,6 @@ window._CCSettings = {
             "c405c",
             "9b4EGs89tFKq5wjf6Vw8BU",
             "bb05b",
-            "9dZRBUiOZGhZYBVzcl4x6w",
-            "a103a",
             "a3QZZnyWBAKpfXkMnHXbrM",
             "34341",
             "a3xZ/MW0lDwbi3AHZcKbt1",
@@ -1849,6 +1847,8 @@ window._CCSettings = {
             "f6f94",
             "d4+W/mbolCv7ozfbtwTKse",
             "a2ef9",
+            "d5gaVVIRdD+5jUmLjRWh57",
+            "cde50",
             "dapguRfpZHW52AYN5g/N/G",
             "4732c",
             "e2ZY+pbpxH66zPUmoaIPEK",
