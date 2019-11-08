@@ -63,7 +63,7 @@ window.__require = function e(t, n, r) {
       AudioController.prototype.initEvent = function() {
         var _this = this;
         EventManager_1.gEventMgr.targetOff(this);
-        this.audioID["bgm"] = this.play("normal_bgm", true, .7, true);
+        this.audioID["bgm"] = this.play("normal_bgm", true, 1.5, true);
         console.log("this.audioID bgm = ", null === this.audioID["bgm"]);
         EventManager_1.gEventMgr.on(EventName_1.GlobalEvent.PLAY_KILL_EFFECT, function() {
           _this.audioID["fruit_break"] = _this.play("fruit_break");
@@ -72,13 +72,15 @@ window.__require = function e(t, n, r) {
           }.bind(_this));
         }, this);
         EventManager_1.gEventMgr.on(EventName_1.GlobalEvent.PLAY_30_BGM, function() {
-          null !== _this.audioID["bgm"] && -1 != _this.audioID["bgm"] && _this.stop(_this.audioID["bgm"]);
-          _this.audioID["bgm"] = _this.play("bgm_30secs", true, .7, true);
-          null === _this.audioID["specialA_bgm"] && null === _this.audioID["specialB_bgm"] || cc.audioEngine.pause(_this.audioID["bgm"]);
+          null != _this.audioID["bgm"] && _this.stop(_this.audioID["bgm"]);
+          _this.audioID["time_counting"] = _this.play("time_counting", true, 10);
+          _this.audioID["bgm"] = _this.play("bgm_30secs", true, 1.5, true);
+          null == _this.audioID["specialA_bgm"] && null == _this.audioID["specialB_bgm"] || cc.audioEngine.pause(_this.audioID["bgm"]);
         }, this);
         EventManager_1.gEventMgr.on(EventName_1.GlobalEvent.GAME_RESTART, function() {
-          null !== _this.audioID["bgm"] && -1 != _this.audioID["bgm"] && _this.stop(_this.audioID["bgm"]);
-          _this.audioID["bgm"] = _this.play("normal_bgm", true, .7, true);
+          null != _this.audioID["bgm"] && _this.stop(_this.audioID["bgm"]);
+          null != _this.audioID["time_counting"] && _this.stop(_this.audioID["time_counting"]);
+          _this.audioID["bgm"] = _this.play("normal_bgm", true, 1.5, true);
         }, this);
         EventManager_1.gEventMgr.on(EventName_1.GlobalEvent.PLAY_LETSGO, function() {
           _this.audioID["letsgo"] = _this.play("letsgo");
@@ -113,11 +115,11 @@ window.__require = function e(t, n, r) {
         EventManager_1.gEventMgr.on(EventName_1.GlobalEvent.PLAY_SPECIAL_A_BGM, function(play) {
           console.log(" SpecialA_bgm:", play);
           if (play) {
-            null !== _this.audioID["bgm"] && cc.audioEngine.pause(_this.audioID["bgm"]);
+            null != _this.audioID["bgm"] && cc.audioEngine.pause(_this.audioID["bgm"]);
             _this.audioID["SpecialA_bgm"] = _this.play("SpecialA_bgm", true);
           } else {
-            null !== _this.audioID["bgm"] && cc.audioEngine.resume(_this.audioID["bgm"]);
-            if (null !== _this.audioID["SpecialA_bgm"]) {
+            null != _this.audioID["bgm"] && cc.audioEngine.resume(_this.audioID["bgm"]);
+            if (null != _this.audioID["SpecialA_bgm"]) {
               cc.audioEngine.stop(_this.audioID["SpecialA_bgm"]);
               _this.audioID["SpecialA_bgm"] = null;
             }
@@ -126,17 +128,18 @@ window.__require = function e(t, n, r) {
         EventManager_1.gEventMgr.on(EventName_1.GlobalEvent.PLAY_SPECIAL_B_BGM, function(play) {
           console.log(" SpecialB_bgm:", play);
           if (play) {
-            null !== _this.audioID["bgm"] && cc.audioEngine.pause(_this.audioID["bgm"]);
+            null != _this.audioID["bgm"] && cc.audioEngine.pause(_this.audioID["bgm"]);
             _this.audioID["SpecialB_bgm"] = _this.play("SpecialB_bgm", true);
           } else {
-            null !== _this.audioID["bgm"] && cc.audioEngine.resume(_this.audioID["bgm"]);
-            if (null !== _this.audioID["SpecialB_bgm"]) {
+            null != _this.audioID["bgm"] && cc.audioEngine.resume(_this.audioID["bgm"]);
+            if (null != _this.audioID["SpecialB_bgm"]) {
               cc.audioEngine.stop(_this.audioID["SpecialB_bgm"]);
               _this.audioID["SpecialB_bgm"] = null;
             }
           }
         }, this);
         EventManager_1.gEventMgr.on(EventName_1.GlobalEvent.PLAY_OVER, function() {
+          null != _this.audioID["time_counting"] && _this.stop(_this.audioID["time_counting"]);
           _this.audioID["over"] = _this.play("over");
           cc.audioEngine.setFinishCallback(_this.audioID["over"], function() {
             this.audioID["over"] = null;
@@ -167,23 +170,21 @@ window.__require = function e(t, n, r) {
           }.bind(_this));
         }, this);
         EventManager_1.gEventMgr.on(EventName_1.GlobalEvent.PLAY_SCORE, function(isPlay) {
-          if (isPlay) _this.audioID["score"] = _this.play("score", true, 5); else if (null !== _this.audioID["score"]) {
+          if (isPlay) _this.audioID["score"] = _this.play("score", true, 5); else if (null != _this.audioID["score"]) {
             _this.stop(_this.audioID["score"]);
             _this.audioID["score"] = null;
           }
         }, this);
         EventManager_1.gEventMgr.on(EventName_1.GlobalEvent.PLAY_SPECIAL_A, function() {
           console.log(" specialA -----------------------------", _this.audioID["specialA"]);
-          if (null !== _this.audioID["specialA"]) return;
-          _this.audioID["specialA"] = _this.play("specialA", false, 6);
+          _this.audioID["specialA"] = _this.play("specialA", false, 1.5);
           cc.audioEngine.setFinishCallback(_this.audioID["specialA"], function() {
             this.audioID["specialA"] = null;
           }.bind(_this));
         }, this);
         EventManager_1.gEventMgr.on(EventName_1.GlobalEvent.PLAY_SPECIAL_B, function() {
           console.log(" specialB -----------------------------", _this.audioID["specialB"]);
-          if (null !== _this.audioID["specialB"]) return;
-          _this.audioID["specialB"] = _this.play("specialB", false, 6);
+          _this.audioID["specialB"] = _this.play("specialB", false, 1.5);
           cc.audioEngine.setFinishCallback(_this.audioID["specialB"], function() {
             this.audioID["specialB"] = null;
           }.bind(_this));
@@ -195,11 +196,12 @@ window.__require = function e(t, n, r) {
           clipItem.skip = clipItem.clipName == clipName;
         }
       };
-      AudioController.prototype.play = function(clipName, loop, volume, isBgm) {
+      AudioController.prototype.play = function(clipName, loop, volume, isBgm, timePass) {
         var _this = this;
         void 0 === loop && (loop = false);
         void 0 === volume && (volume = 1);
         void 0 === isBgm && (isBgm = false);
+        void 0 === timePass && (timePass = 0);
         if (!AudioController.canPlay && !AudioController.hasBindTouch) {
           AudioController.hasBindTouch = true;
           var self_1 = this;
@@ -218,20 +220,26 @@ window.__require = function e(t, n, r) {
           cc.game.canvas.addEventListener("touchstart", playFunc_1);
         }
         if (!this.clips.get(clipName)) {
+          var now_1 = Date.now();
           cc.loader.loadRes("sounds/" + clipName, cc.AudioClip, function(err, clip) {
             if (err) console.error(err); else {
               _this.clips.add(clip.name, clip);
-              _this.audioID[clipName] = _this.play(clipName, loop, volume, isBgm);
+              var pass = (Date.now() - now_1) / 1e3;
+              _this.audioID[clipName] = _this.play(clipName, loop, volume, isBgm, pass);
             }
           });
           return -1;
         }
-        if (AudioController.canPlay) return cc.audioEngine.play(this.clips.get(clipName), loop, volume);
+        if (AudioController.canPlay) {
+          var audioID = cc.audioEngine.play(this.clips.get(clipName), loop, volume);
+          cc.audioEngine.setCurrentTime(audioID, timePass % cc.audioEngine.getDuration(audioID));
+          return audioID;
+        }
         AudioController.PlayedList.push({
           clipName: clipName,
           loop: loop,
           volume: volume,
-          supTime: Date.now(),
+          supTime: Date.now() - timePass / 1e3,
           skip: false,
           isBgm: isBgm
         });
@@ -327,6 +335,7 @@ window.__require = function e(t, n, r) {
         EventManager_1.gEventMgr.targetOff(this);
       };
       CubeBg.prototype.initEvent = function() {
+        var _this = this;
         EventManager_1.gEventMgr.targetOff(this);
         EventManager_1.gEventMgr.on(EventName_1.GlobalEvent.CUBE_BOX_DRAG_CANCEL, this.onDragCancel, this);
         EventManager_1.gEventMgr.on(EventName_1.GlobalEvent.CUBE_BOX_DRAG_INDEX, this.onDragIndex, this);
@@ -337,6 +346,15 @@ window.__require = function e(t, n, r) {
         EventManager_1.gEventMgr.on(EventName_1.GlobalEvent.GAME_OVER, this.onGameOver, this);
         EventManager_1.gEventMgr.on(EventName_1.GlobalEvent.CLEAR_CUBE_ROOT, this.clear, this);
         this.cube.getComponent(cc.Animation).on(cc.Animation.EventType.FINISHED, this.onKillFinished, this);
+        this.cube.getComponent(cc.Animation).on(cc.Animation.EventType.STOP, function() {
+          _this.cube.node.scale = 1;
+        }, this);
+        this.cube.getComponent(cc.Animation).on(cc.Animation.EventType.RESUME, function() {
+          _this.cube.node.scale = 2;
+        }, this);
+        this.cube.getComponent(cc.Animation).on(cc.Animation.EventType.PAUSE, function() {
+          _this.cube.node.scale = 1;
+        }, this);
         this.SpecialKill.on(cc.Animation.EventType.FINISHED, this.onSpecialAniDone, this);
       };
       CubeBg.prototype.clear = function() {
@@ -395,11 +413,15 @@ window.__require = function e(t, n, r) {
           10032 == this.fruitData.ID ? EventManager_1.gEventMgr.emit(EventName_1.GlobalEvent.PLAY_SPECIAL_A) : EventManager_1.gEventMgr.emit(EventName_1.GlobalEvent.PLAY_SPECIAL_B);
         }
         setTimeout(function() {
-          this.isPlaying && (this.cube.getComponent(cc.Animation).play(ani, 0).speed = 1);
+          if (this.isPlaying) {
+            this.cube.node.scale = 2;
+            this.cube.getComponent(cc.Animation).play(ani, 0).speed = 1;
+          }
         }.bind(this), delay);
         this.setAvailable(true);
       };
       CubeBg.prototype.onKillFinished = function() {
+        this.cube.node.scale = 1;
         this.isPlaying = false;
         if (this.isAvailable()) if (this.cube.node.active && this.cube.node.opacity < 255) ; else {
           this.cube.node.active = false;
@@ -428,6 +450,7 @@ window.__require = function e(t, n, r) {
       };
       CubeBg.prototype.onDragIndex = function(indexArr, shapeID, killDirectly, centerPoint) {
         if (!GameMgr_1.Game.isStart) return;
+        GameMgr_1.Game.killDirectlyCount = 0;
         if (killDirectly && killDirectly.length > 0) {
           this.isDirectlyKill = killDirectly.indexOf(this.index) >= 0;
           GameMgr_1.Game.killDirectlyCount++;
@@ -1393,7 +1416,7 @@ window.__require = function e(t, n, r) {
         }
         if (rowIndex.length > 0 || colIndex.length > 0 || this.combo > 0) {
           var textName = "good";
-          textName = this.combo >= 3 ? "unbelievable" : this.combo > 1 ? rowIndex.length + colIndex.length < 2 ? "combo" : "unbelievable" : rowIndex.length + colIndex.length < 2 ? "good" : rowIndex.length + colIndex.length < 3 ? "great" : "amazing";
+          textName = this.combo >= 3 ? "unbelievable" : this.combo > 1 ? rowIndex.length + colIndex.length < 2 ? "combo" : "unbelievable" : rowIndex.length + colIndex.length < 2 ? "good" : rowIndex.length + colIndex.length < 3 ? "great" : rowIndex.length + colIndex.length < 4 ? "amazing" : "unbelievable";
           EventManager_1.gEventMgr.emit(EventName_1.GlobalEvent.SHOW_TEXT, textName);
         }
         EventManager_1.gEventMgr.emit(EventName_1.GlobalEvent.KILL_DIRECTLY);
@@ -1518,6 +1541,8 @@ window.__require = function e(t, n, r) {
         return _this;
       }
       GameScene.prototype.onLoad = function() {
+        cc.loader.loadResDir("Textures/Fruits/");
+        cc.loader.loadResDir("sounds");
         this.Score.string = "0";
         this.FloatScore.string = "";
         this.Tip.node.active = false;
@@ -1545,7 +1570,7 @@ window.__require = function e(t, n, r) {
       GameScene.prototype.initGamePanel = function() {
         var _this = this;
         this.Score.string = "0";
-        this.TimeLabel.string = "3:00";
+        this.TimeLabel.string = "3/00";
         var _loop_1 = function(i) {
           this_1.GamePanel.runAction(cc.sequence(cc.delayTime(i / 60), cc.callFunc(function() {
             _this.GamePanel.addChild(GameFactory_1.gFactory.getCubeBg(i));
@@ -2298,12 +2323,10 @@ window.__require = function e(t, n, r) {
         this.maxPercent = 0;
         this.defaultAnimation = this.node.getComponent(cc.Animation);
         this.defaultAnimation && (this.defaultAnimation.play().wrapMode = cc.WrapMode.Loop);
-        cc.loader.loadResDir("Textures/Fruits/");
-        cc.loader.loadResDir("sounds");
         TableMgr_1.TableMgr.inst.startLoad("json/", function() {
           GameFactory_1.gFactory.init(function() {
             this.nextStep(LOAD_STEP.PREFABS);
-          }.bind(_this));
+          }.bind(_this), _this.CubeBg, _this.Cube, _this.CubeRoot);
         });
         AudioController_1.gAudio.init(function() {
           this.nextStep(LOAD_STEP.AUDIO);
