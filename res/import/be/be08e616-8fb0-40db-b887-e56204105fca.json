@@ -1,0 +1,28 @@
+{
+  "__type__": "cc.SpriteFrame",
+  "content": {
+    "name": "am_space_ship06",
+    "texture": "150c665d8",
+    "rect": [
+      3,
+      356,
+      191,
+      130
+    ],
+    "offset": [
+      3.5,
+      2
+    ],
+    "originalSize": [
+      250,
+      184
+    ],
+    "rotated": 1,
+    "capInsets": [
+      0,
+      0,
+      0,
+      0
+    ]
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "__type__": "cc.SpriteFrame",
+  "content": {
+    "name": "am_cnicorn08",
+    "texture": "1df0c96cb",
+    "rect": [
+      898,
+      700,
+      242,
+      115
+    ],
+    "offset": [
+      -4.5,
+      11
+    ],
+    "originalSize": [
+      255,
+      137
+    ],
+    "rotated": 1,
+    "capInsets": [
+      0,
+      0,
+      0,
+      0
+    ]
+  }
+}
