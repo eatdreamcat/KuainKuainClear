@@ -1498,7 +1498,7 @@ window.__require = function e(t, n, r) {
             this.addScore(1);
             this.combo = 0;
           }
-          HeroControl && (HeroControl.isSuper = this.combo >= 3);
+          HeroControl && (HeroControl.isSuper = this.combo >= 1);
           HeroControl && HeroControl.playIdleAnimation();
           HeroControl && (HeroControl.bottomLine += 40);
           this.lastX = block.node.x;
@@ -1589,7 +1589,7 @@ window.__require = function e(t, n, r) {
         }
       },
       update: function update() {
-        if (this.combo < 3) {
+        if (this.combo < 1) {
           this.aeCombobuff.opacity = 0;
           this.comboFont.opacity = 0;
         } else {
